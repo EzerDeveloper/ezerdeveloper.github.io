@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="ET框架分析与使用这段时间打算做个小型MMOARPG游戏，刚好看到了ET框架，十分欣赏他的服务器的组件开发的思想，决定使用这套框架，从今天开始每天结合自己的游戏开发进度写一篇关于这个框架的学习技术文档,我们先从客户端入手，一步一步从能看懂逻辑再到研究内部实现原理。ET框架的搭建与运行 GayHub地址: https://github.com/egametang/ET VS用2017最新版，Unit">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-06-06T12:12:26.811Z">
+<meta property="og:updated_time" content="2019-06-06T13:02:23.041Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Unity3D ET游戏开发框架教程">
 <meta name="twitter:description" content="ET框架分析与使用这段时间打算做个小型MMOARPG游戏，刚好看到了ET框架，十分欣赏他的服务器的组件开发的思想，决定使用这套框架，从今天开始每天结合自己的游戏开发进度写一篇关于这个框架的学习技术文档,我们先从客户端入手，一步一步从能看懂逻辑再到研究内部实现原理。ET框架的搭建与运行 GayHub地址: https://github.com/egametang/ET VS用2017最新版，Unit">
@@ -192,12 +192,11 @@
 </li>
 <li><p>这个时候请打开 <code>Model/Base/Object/Components.cs</code> 映入眼帘的首先是上面这段代码，看到<code>#if !SERVER</code>我们知道这个类应该是服务器客户端通用的，这样的话对我们理解这套服务器客户端框架更有帮助,相当于买一送一啊！烟鬼正传我们看到它有一个内部静态变量，拿到了，游戏场景中名字 <code>Global</code>的GameObject,这个应该就是Components所需要挂载的GameObject了，我们往下看找到Components的构造函数</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">protected Component()</span><br><span class="line">&#123;</span><br><span class="line">    //我们看这里，就知道引擎中有个ID分配器，每个Entity实体或继承与 IDisposable 都有一个唯一的ID先Mark一下，未来看有什么用</span><br><span class="line">    this.InstanceId = IdGenerater.GenerateInstanceId();</span><br><span class="line">    // 这里如果没有定义 HideInHierarchy这个属性, 顾名思义这个属性 是否在Hierarchy面板中隐藏</span><br><span class="line">    if (!this.GetType().IsDefined(typeof(HideInHierarchy), true))</span><br><span class="line">    &#123;</span><br><span class="line">        this.GameObject = new GameObject();</span><br><span class="line">        this.GameObject.name = this.GetType().Name;</span><br><span class="line">        // LayerNames 仅仅是一个名字常量存储，GetLayerInt内部用LayerMask获取Layer的层级</span><br><span class="line">        this.GameObject.layer = LayerNames.GetLayerInt(LayerNames.HIDDEN);</span><br><span class="line">        // 将这个GameObject挂载到 Global下面</span><br><span class="line">        this.Gameobject.transform.SetParent(Global.transform, false);</span><br><span class="line">        // 将自身挂载到 GameObject中 这里我们可以看到 ET的Compont 是通过 ComponentView来挂载的</span><br><span class="line">        this。GameObject.AddComponent&lt;ComponentView&gt;.Component = this;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public virtual void Dispose()</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    // 触发Destroy事件 从事件系统中销毁</span><br><span class="line">    Game.EventSystem.Destroy(this);</span><br><span class="line">    Game.EventSystem.Remove(this.InstanceId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-
-
 </li>
 </ol>
+<ul>
+<li>今天到此，明天我们分析后边的几行代码的功能</li>
+</ul>
 </li>
 </ul>
 </li>
@@ -215,7 +214,7 @@
             <span class="tooltip-content">
               <span class="tooltip-text">
                 <span class="tooltip-inner">
-                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请喝啤酒<i class="icon icon-quo-right"></i></p>
                   <div class="reward-box">
                     
                     <div class="reward-box-item">
