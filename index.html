@@ -43,7 +43,7 @@
 <div class="intrude-less">
 	<header id="header" class="inner">
 		<a href="/" class="profilepic">
-			<img src class="js-avatar">
+			<img src="/assets/head.png" class="js-avatar">
 		</a>
 		<hgroup>
 		  <h1 class="header-author"><a href="/">EzerDeleloper</a></h1>
@@ -95,7 +95,7 @@
 	<div class="intrude-less">
 		<header id="header" class="inner">
 			<div class="profilepic">
-				<img src class="js-avatar">
+				<img src="/assets/head.png" class="js-avatar">
 			</div>
 			<hgroup>
 			  <h1 class="header-author js-header-author">EzerDeleloper</h1>
@@ -139,6 +139,110 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  
+    <article id="post-Unity3D-ETFrameWork-01" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/06/Unity3D-ETFrameWork-01/">Unity3D ETFrameWork-01</a>
+    </h1>
+  
+
+        
+        <a href="/2019/06/06/Unity3D-ETFrameWork-01/" class="archive-article-date">
+  	<time datetime="2019-06-06T06:52:59.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-06-06</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="ET框架分析与使用"><a href="#ET框架分析与使用" class="headerlink" title="ET框架分析与使用"></a>ET框架分析与使用</h1><h3 id="这段时间打算做个小型MMOARPG游戏，刚好看到了ET框架，十分欣赏他的服务器的组件开发的思想，决定使用这套框架，从今天开始每天结合自己的游戏开发进度写一篇关于这个框架的学习技术文档-我们先从客户端入手，一步一步从能看懂逻辑再到研究内部实现原理。"><a href="#这段时间打算做个小型MMOARPG游戏，刚好看到了ET框架，十分欣赏他的服务器的组件开发的思想，决定使用这套框架，从今天开始每天结合自己的游戏开发进度写一篇关于这个框架的学习技术文档-我们先从客户端入手，一步一步从能看懂逻辑再到研究内部实现原理。" class="headerlink" title="这段时间打算做个小型MMOARPG游戏，刚好看到了ET框架，十分欣赏他的服务器的组件开发的思想，决定使用这套框架，从今天开始每天结合自己的游戏开发进度写一篇关于这个框架的学习技术文档,我们先从客户端入手，一步一步从能看懂逻辑再到研究内部实现原理。"></a>这段时间打算做个小型MMOARPG游戏，刚好看到了ET框架，十分欣赏他的服务器的组件开发的思想，决定使用这套框架，从今天开始每天结合自己的游戏开发进度写一篇关于这个框架的学习技术文档,我们先从客户端入手，一步一步从能看懂逻辑再到研究内部实现原理。</h3><h2 id="ET框架的搭建与运行"><a href="#ET框架的搭建与运行" class="headerlink" title="ET框架的搭建与运行"></a>ET框架的搭建与运行</h2><ol>
+<li>GayHub地址: <a href="https://github.com/egametang/ET" target="_blank" rel="noopener">https://github.com/egametang/ET</a></li>
+<li>VS用2017最新版，Unity使用2018.4.1</li>
+<li>.netCore 使用2.2.1版本</li>
+<li>打开server项目全部重新编译 Debug &amp; Relese，运行， 打开Unity项目，编译C#工程</li>
+<li>在Unity中打开命令行配置，选择LocalAllServer.txt 这个时候服务器就启动成功</li>
+<li>进入场景就能看到多人MMO的Demo</li>
+</ol>
+<h2 id="客户端启动分析"><a href="#客户端启动分析" class="headerlink" title="客户端启动分析"></a>客户端启动分析</h2><ul>
+<li><p>我们在 Hierarchy中可以看到，场景中Global挂载了 Init(Script)，这个就是项目的入口，我们跟进去看下是怎么实现的代码如下：</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">SynchronizationContext.SetSynchronizationContext(OneThreadSynchronizationContext.Instance);</span><br><span class="line">DontDestroyOnLoad(gameObject);</span><br><span class="line">Game.EventSystem.Add(DLLType.Model, typeof(Init).Assembly);</span><br><span class="line">Game.Scene.AddComponent&lt;TimerComponent&gt;();</span><br><span class="line">Game.Scene.AddComponent&lt;GlobalConfigComponent&gt;();</span><br><span class="line">Game.Scene.AddComponent&lt;NetOuterComponent&gt;();</span><br><span class="line">Game.Scene.AddComponent&lt;ResourcesComponent&gt;();</span><br><span class="line">Game.Scene.AddComponent&lt;PlayerComponent&gt;();</span><br><span class="line">Game.Scene.AddComponent&lt;UnitComponent&gt;();</span><br><span class="line">Game.Scene.AddComponent&lt;UIComponent&gt;();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>我们可以看到 在Init的Start中调用了StartAsync() 异步函数来初始化所有组件</p>
+</li>
+<li><p>我们先看到的是 <code>SynchronizationContext.SetSynchronizationContext(OneThreadSynchronizationContext.Instance)</code> <br><br>这个相当于创建了个主线程钩子，用于别的线程给主线程传函数, 这个在后边我们应该会深入研究，不懂的也可以暂时掠过。</p>
+</li>
+<li><p>下面一段 <code>Game.EventSystem.Add(DLLType.Model, typeof(Init).Assembly</code> 这里我们将 Init所在的程序集添加到Game.EventSystem中，由此可见我们的 EventSystem是根据反射来做时间分发的，这个我们会在专门针对<code>EventSystem</code>进行分析<br></p>
+<ol>
+<li><p>我们来看下Game的实现， 在Game 静态类中中 有个 EventSystem对象， Scene对象， ObjectPool对象， Hotfix对象， 和一个Cloce()函数，这个我们不难理解Game是做什么的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">public void Add(DLLType dllType, Assembly assembly)</span><br><span class="line">&#123;</span><br><span class="line">    this.assemblies[dllType] = assembly;</span><br><span class="line">    this.types.Clear();</span><br><span class="line">    foreach (Assembly value in this.assemblies.Values)</span><br><span class="line">    &#123;</span><br><span class="line">        foreach (Type type in value.GetTypes())</span><br><span class="line">        &#123;</span><br><span class="line">            object[] objects = type.GetCustomAttributes(typeof(BaseAttribute), false);</span><br><span class="line">            if (objects.Length == 0)</span><br><span class="line">            &#123;</span><br><span class="line">                continue;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            BaseAttribute baseAttribute = (BaseAttribute) objects[0];</span><br><span class="line">            this.types.Add(baseAttribute.AttributeType, type);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>我们再来看下EventSystem的 Add(DLLType, Assembly) 的实现（代码如上） 这个函数将 我们Init.cs所在的程序集存储，然后将其中所有的类型拥有BaseAttribute属性的类型给找出然后存储到 this.types中，为未来使用。这个我们会在用到事件分发的时候详细研究。</p>
+</li>
+<li><p>下面我们看<code>Game.Scene.AddComponent&lt;TimerComponent&gt;();</code> 我们来看Scene的实现,Scene的实现 如此简单，内部只有一个Name字段，继承于Entity，可以看出它的功能全都是由身上挂载的组件来完成。 明天我们会来了解 <code>Entity</code> 的实现 现在我们只需要知道Entity能挂载组件</p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">ET Unity3D</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/06/06/Unity3D-ETFrameWork-01/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
   
     <article id="post-flutter-01" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
@@ -387,6 +491,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
             <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
           </label>
           <ul class="article-tag-list" q-show="showTags">
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">ET Unity3D</a>
+              </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">flutter</a>
